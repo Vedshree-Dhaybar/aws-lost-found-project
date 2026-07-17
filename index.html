@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost & Found Asset Registry</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --success: #10b981;
+            --success-hover: #059669;
+            --bg: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        .navbar {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .navbar-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Glassmorphic Form Styling */
+        .form-section {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            height: fit-content;
+            position: sticky;
+            top: 6rem;
+        }
+
+        .form-section h2 {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background-color: #f8fafc;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            background-color: #f8fafc;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .file-upload-wrapper:hover {
+            border-color: var(--primary);
+        }
+
+        .file-upload-wrapper input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* Action Buttons */
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.85rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Search Section */
+        .registry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+
+        .registry-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .search-container {
+            flex-grow: 1;
+            max-width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.65rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            outline: none;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        /* Dynamic Grid System */
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .item-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .item-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+        }
+
+        .image-container {
+            width: 100%;
+            height: 200px;
+            background-color: #f1f5f9;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .item-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .item-details {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .item-details h3 {
+            margin: 0 0 0.75rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .meta-line {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .meta-line strong {
+            color: var(--text-main);
+        }
+
+        .card-actions {
+            margin-top: auto;
+            padding-top: 1rem;
+        }
+
+        .found-btn {
+            background-color: #f0fdf4;
+            color: var(--success);
+            border: 1px solid #bbf7d0;
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .found-btn:hover {
+            background-color: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        #status {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* Pulse Loading Component */
+        .spinner {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span>🔍 Lost & Found Asset Registry</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="main-layout">
+            
+            <!-- Side Form Dashboard Component -->
+            <div class="form-section">
+                <h2>Report a New Entry</h2>
+                <div class="form-group">
+                    <label for="itemName">Item Name</label>
+                    <input type="text" id="itemName" placeholder="e.g., Apple AirPods Pro Case">
+                </div>
+                <div class="form-group">
+                    <label for="location">Location Discovered</label>
+                    <input type="text" id="location" placeholder="e.g., Seminar Hall Desk 4">
+                </div>
+                <div class="form-group">
+                    <label for="concernPerson">Custodian / Contact Person</label>
+                    <input type="text" id="concernPerson" placeholder="e.g., Prof. Sarah Jenkins">
+                </div>
+                <div class="form-group">
+                    <label>Item Image Asset</label>
+                    <div class="file-upload-wrapper">
+                        <span id="file-label" style="font-size: 0.85rem; color: var(--text-muted);">Click to attach image file</span>
+                        <input type="file" id="imageInput" accept="image/*" onchange="updateFileLabel()">
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="addItem()">Publish Entry</button>
+                <div id="status"></div>
+            </div>
+
+            <!-- Core Live State Monitoring Grid -->
+            <div>
+                <div class="registry-header">
+                    <h2>Active Discovered Assets</h2>
+                    <div class="search-container">
+                        <input type="text" id="searchInput" class="search-input" placeholder="Search registry elements..." oninput="filterItems()">
+                    </div>
+                </div>
+
+                <div id="itemsGrid" class="items-grid">
+                    <div class="spinner">Loading synchronization pipeline...</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+<script>
+    // ⚠️ REPLACE THIS WITH YOUR INSTANCE AP-SOUTH-1 BASE ENDPOINT URL
+    const API_BASE_URL = "https://94iwnyd4ya.execute-api.ap-south-1.amazonaws.com";
+    let allItemsCache = [];
+
+    function updateFileLabel() {
+        const input = document.getElementById('imageInput');
+        const label = document.getElementById('file-label');
+        if(input.files.length > 0) {
+            label.innerText = `📄 ${input.files[0].name}`;
+            label.style.color = 'var(--primary)';
+        }
+    }
+
+    function getBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    window.onload = fetchItems;
+
+    async function fetchItems() {
+        const grid = document.getElementById('itemsGrid');
+        try {
+            const response = await fetch(`${API_BASE_URL}/items`);
+            if (!response.ok) throw new Error("Failed to fetch dashboard matrix data.");
+            
+            allItemsCache = await response.json();
+            renderItems(allItemsCache);
+        } catch (err) {
+            grid.innerHTML = `<div class="spinner" style="color: #ef4444;">Could not sync cloud data: ${err.message}</div>`;
+        }
+    }
+
+    function renderItems(itemsList) {
+        const grid = document.getElementById('itemsGrid');
+        if (itemsList.length === 0) {
+            grid.innerHTML = '<div class="spinner">No current missing properties found.</div>';
+            return;
+        }
+
+        grid.innerHTML = '';
+        itemsList.forEach(item => {
+            grid.innerHTML += `
+                <div class="item-card" id="card-${item.itemId}">
+                    <div class="image-container">
+                        <img src="${item.imageUrl}" alt="${item.itemName || 'Asset'}">
+                    </div>
+                    <div class="item-details">
+                        <h3>${item.itemName || 'Unnamed Item'}</h3>
+                        <div class="meta-line">📍 <strong>Location:</strong> ${item.location}</div>
+                        <div class="meta-line">👤 <strong>Contact:</strong> ${item.concernPerson}</div>
+                        <div class="card-actions">
+                            <button class="found-btn" onclick="markAsFound('${item.itemId}')">Mark Handed Over ✅</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function filterItems() {
+        const query = document.getElementById('searchInput').value.toLowerCase().trim();
+        if (!query) {
+            renderItems(allItemsCache);
+            return;
+        }
+        const filtered = allItemsCache.filter(item => {
+            const nameMatch = item.itemName ? item.itemName.toLowerCase().includes(query) : false;
+            const locationMatch = item.location ? item.location.toLowerCase().includes(query) : false;
+            return nameMatch || locationMatch;
+        });
+        renderItems(filtered);
+    }
+
+    async function addItem() {
+        const status = document.getElementById('status');
+        const itemName = document.getElementById('itemName').value;
+        const location = document.getElementById('location').value;
+        const concernPerson = document.getElementById('concernPerson').value;
+        const fileInput = document.getElementById('imageInput');
+
+        if (!itemName || !location || !concernPerson || fileInput.files.length === 0) {
+            status.innerText = "All descriptive parameters required.";
+            status.style.color = "#ef4444";
+            return;
+        }
+
+        status.innerText = "Encoding and uploading target structure...";
+        status.style.color = "var(--primary)";
+
+        try {
+            const base64Image = await getBase64(fileInput.files[0]);
+            const payload = { itemName, location, concernPerson, image: base64Image };
+
+            const response = await fetch(`${API_BASE_URL}/items`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                status.innerText = "Asset recorded to distributed ledger!";
+                status.style.color = "var(--success)";
+                
+                document.getElementById('itemName').value = '';
+                document.getElementById('location').value = '';
+                document.getElementById('concernPerson').value = '';
+                fileInput.value = '';
+                document.getElementById('file-label').innerText = "Click to attach image file";
+                document.getElementById('file-label').style.color = 'var(--text-muted)';
+                
+                fetchItems();
+            } else {
+                const errData = await response.json();
+                status.innerText = `Upload rejection: ${errData.error || 'Server error'}`;
+                status.style.color = "#ef4444";
+            }
+        } catch (error) {
+            status.innerText = "Network data frame mutation failure.";
+            status.style.color = "#ef4444";
+        }
+    }
+
+    async function markAsFound(itemId) {
+        if (!confirm("Remove this asset from public view and delete cloud tracking items?")) return;
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/items?itemId=${itemId}`, {
+                method: 'DELETE',
+                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }
+            });
+
+            if (response.ok) {
+                fetchItems(); 
+            } else {
+                alert(`Error trying to remove active state entry (${response.status})`);
+            }
+        } catch (error) {
+            alert("API context mutation failure.");
+        }
+    }
+</script>
+</body>
+</htm
